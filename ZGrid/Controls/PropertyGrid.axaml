@@ -1,0 +1,145 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:ZGrid.Models"
+             xmlns:local="clr-namespace:ZGrid.Controls"
+             x:Class="ZGrid.Controls.PropertyGrid"
+             x:Name="Root">
+  <UserControl.Resources>
+    <models:NotConverter x:Key="NotConverter"/>
+    <models:EditorKindEqualsConverter x:Key="EditorKindEquals"/>
+    <models:BoolToGlyphConverter x:Key="BoolToGlyph"/>
+
+    <!-- Property row template -->
+    <DataTemplate x:Key="PropertyEntryTemplate" x:DataType="models:PropertyEntry">
+      <Grid ColumnDefinitions="200,*" Margin="0,2">
+        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        <ContentControl Grid.Column="1"
+                        Content="{Binding}"
+                        HorizontalContentAlignment="Stretch"
+                        IsEnabled="{Binding IsReadOnly, Converter={StaticResource NotConverter}}">
+          <ContentControl.Styles>
+            <Style Selector="ContentControl">
+              <Setter Property="ContentTemplate">
+                <Setter.Value>
+                  <DataTemplate x:DataType="models:PropertyEntry">
+                    <Grid>
+                      <CheckBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Bool}"
+                                HorizontalAlignment="Left"
+                                IsChecked="{Binding BoolValue, Mode=TwoWay}"/>
+                      <ComboBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Enum}"
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{Binding EnumValues}"
+                                SelectedItem="{Binding EnumValue, Mode=TwoWay}"/>
+                      <TextBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Text}"
+                               HorizontalAlignment="Stretch"
+                               Text="{Binding StringValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ContentControl.Styles>
+        </ContentControl>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <!-- Collapse button style: square outline, no fill in any state -->
+    <Style Selector="Button.collapse-btn">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="#8C8C8C"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="MinWidth" Value="16"/>
+      <Setter Property="MinHeight" Value="16"/>
+      <Setter Property="Width" Value="16"/>
+      <Setter Property="Height" Value="16"/>
+    </Style>
+    <Style Selector="Button.collapse-btn:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.collapse-btn:pressed">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.collapse-btn:focused">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+      <Grid RowDefinitions="*,Auto">
+        <!-- Grouped only view with collapsible groups -->
+        <Border Grid.Row="0" BorderThickness="1,1,1,0" BorderBrush="#ddd">
+          <ScrollViewer VerticalScrollBarVisibility="Visible" Padding="0">
+            <ItemsControl ItemsSource="{Binding Groups, RelativeSource={RelativeSource AncestorType=local:PropertyGrid}}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:CategoryGroup">
+                  <StackPanel>
+                    <Border Background="#f0f0f0" Padding="6" BorderThickness="0,1,0,0" BorderBrush="#ddd" HorizontalAlignment="Stretch">
+                      <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+                        <Button Grid.Column="0"
+                                Classes="collapse-btn"
+                                Focusable="False"
+                                Command="{Binding ToggleGroupCommand, RelativeSource={RelativeSource AncestorType=local:PropertyGrid}}"
+                                CommandParameter="{Binding}" Margin="6">
+                          <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding IsExpanded, Converter={StaticResource BoolToGlyph}}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextAlignment="Center"/>
+                          </Grid>
+                        </Button>
+                        <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Name}" VerticalAlignment="Center"/>
+                      </Grid>
+                    </Border>
+
+                    <!-- Restore hover and selection effects using ListBox -->
+                    <ListBox ItemsSource="{Binding Items}"
+                             ItemTemplate="{StaticResource PropertyEntryTemplate}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             IsVisible="{Binding IsExpanded}"
+                             SelectedItem="{Binding SelectedEntry, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=local:PropertyGrid}}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                             Margin="0,0,20,0">
+                      <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                          <Setter Property="Padding" Value="0"/>
+                          <Setter Property="MinHeight" Value="28"/>
+                        </Style>
+                        <!-- Hover background -->
+                        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                          <Setter Property="Background" Value="#E6F2FF"/>
+                        </Style>
+                        <!-- Selected background -->
+                        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                          <Setter Property="Background" Value="#CDE5FF"/>
+                        </Style>
+                      </ListBox.Styles>
+                    </ListBox>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+
+        <!-- Description panel -->
+        <Border Grid.Row="1" Background="#f7f7f7" BorderThickness="1" BorderBrush="#ddd" Padding="8">
+          <ContentControl Content="{Binding SelectedEntry, RelativeSource={RelativeSource AncestorType=local:PropertyGrid}}">
+            <ContentControl.ContentTemplate>
+              <DataTemplate x:DataType="models:PropertyEntry">
+                <TextBlock TextWrapping="Wrap" MaxLines="4" Text="{Binding Description}"/>
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+        </Border>
+      </Grid>
+    </DockPanel>
+</UserControl>
