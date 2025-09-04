@@ -2,21 +2,20 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ZGrid.Models;
+using CommunityToolkit.Mvvm.Input;
 
-namespace ZGrid.Controls;
+namespace Z;
 
-public partial class PropertyGrid : UserControl
+public partial class ZGrid : UserControl
 {
     public static readonly StyledProperty<object?> SelectedObjectProperty =
-        AvaloniaProperty.Register<PropertyGrid, object?>(nameof(SelectedObject));
+        AvaloniaProperty.Register<global::Z.ZGrid, object?>(nameof(SelectedObject));
 
     public static readonly StyledProperty<PropertyEntry?> SelectedEntryProperty =
-        AvaloniaProperty.Register<PropertyGrid, PropertyEntry?>(nameof(SelectedEntry));
+        AvaloniaProperty.Register<global::Z.ZGrid, PropertyEntry?>(nameof(SelectedEntry));
 
     public object? SelectedObject
     {
@@ -32,14 +31,11 @@ public partial class PropertyGrid : UserControl
 
     public ObservableCollection<CategoryGroup> Groups { get; } = new();
 
-    public ICommand ToggleGroupCommand { get; }
-
-    public PropertyGrid()
+    public ZGrid()
     {
         InitializeComponent();
         this.PropertyChanged += OnPropertyChanged;
         this.AttachedToVisualTree += (_, __) => BuildGroups();
-        ToggleGroupCommand = new RelayCommand<CategoryGroup>(g => g.IsExpanded = !g.IsExpanded);
     }
 
     private void OnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -78,15 +74,6 @@ public partial class PropertyGrid : UserControl
             Groups.Add(g);
     }
 
-    private sealed class RelayCommand<T> : ICommand where T : class
-    {
-        private readonly Action<T> _execute;
-        public RelayCommand(Action<T> execute) => _execute = execute;
-        public bool CanExecute(object? parameter) => parameter is T;
-        public void Execute(object? parameter)
-        {
-            if (parameter is T t) _execute(t);
-        }
-        public event EventHandler? CanExecuteChanged { add { } remove { } }
-    }
+    [RelayCommand]
+    private void ToggleGroup(CategoryGroup g) => g.IsExpanded = !g.IsExpanded;
 }

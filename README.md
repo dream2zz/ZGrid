@@ -1,113 +1,88 @@
 # ZGrid
 
-Ò»¸ö»ùÓÚ .NET 9 ºÍ Avalonia µÄ¿çÆ½Ì¨×ÀÃæÊ¾ÀıÓ¦ÓÃ£¬ÓÃÓÚÕ¹Ê¾Ò»¸ö¼òµ¥¶øÊµÓÃµÄ PropertyGrid£¨ÊôĞÔÃæ°å£©¿Ø¼ş¡£¸Ã¿Ø¼ş°´·ÖÀà·Ö×éÏÔÊ¾¶ÔÏóÊôĞÔ£¬Ìá¹©»ù´¡±à¼­Æ÷£¬²¢²ÉÓÃÇåÎúµÄ MVVM ½á¹¹£¬·½±ãÔÚÄãµÄÏîÄ¿ÖĞ¸´ÓÃ¡£
+åŸºäº .NET 9 ä¸ Avalonia 11 çš„ PropertyGrid æ§ä»¶ä¸æ¼”ç¤ºåº”ç”¨ã€‚
 
-- Ö§³ÖÆ½Ì¨£ºWindows / macOS / Linux
-- ¼¼ÊõÕ»£º.NET 9¡¢Avalonia 11.2¡¢CommunityToolkit.Mvvm
+- æ”¯æŒå¹³å°ï¼šWindows / macOS / Linux
+- ç»„ä»¶åº“ï¼šZGridï¼ˆå‘½åç©ºé—´ `Z`ï¼Œæ§ä»¶ç±»å‹ `Z.ZGrid`ï¼‰
+- æ¼”ç¤ºç¨‹åºï¼šZGrid.Demo
 
-## ¹¦ÄÜÌØĞÔ
-- MVVM ÓÅÏÈ£¬ÎŞ½çÃæÂß¼­¶ÑµşÔÚ code-behind
-- »ùÓÚÌØĞÔ£¨Attribute£©µÄ·Ö×éÓëÔªÊı¾İÖ§³Ö£º
-  - [Category]¡¢[DisplayName]¡¢[Description]
-- ÄÚÖÃ»ù´¡±à¼­Æ÷£¨µ±Ç°£©£º
-  - Text£º×Ö·û´®¼°ÆäËû·Ç³£Á¿²¼¶û/Ã¶¾ÙµÄÀàĞÍ£¨ÒÔ×Ö·û´®ĞÎÊ½±à¼­£©
-  - Bool£º¸´Ñ¡¿ò
-  - Enum£ºÏÂÀ­Ñ¡Ôñ
-- ×é±ğÕÛµş/Õ¹¿ª£¬Ö¸ÁîÇı¶¯
-- Ñ¡ÖĞĞĞÁª¶¯µ×²¿¡°ËµÃ÷Ãæ°å¡±£¬×Ô¶¯Õ¹Ê¾¶ÔÓ¦ÊôĞÔµÄÃèÊö
-- Ò×ÓÚ¶¨ÖÆµÄÑùÊ½ÓëÄ£°å£¨Fluent ·ç¸ñ£©
+## ä½ èƒ½å¾—åˆ°ä»€ä¹ˆ
+- è‡ªåŠ¨æŒ‰ [Category] åˆ†ç»„æ˜¾ç¤ºå¯¹è±¡å±æ€§
+- æ”¯æŒ [DisplayName]ã€[Description]ï¼ˆç”¨äºæ ‡é¢˜ä¸è¯´æ˜é¢æ¿ï¼‰
+- åŸºç¡€ç¼–è¾‘å™¨ï¼šText / Bool / Enum
+- æ‰©å±•ç¤ºä¾‹ç¼–è¾‘å™¨ï¼š
+  - ListPickerï¼ˆä»å¤–éƒ¨é›†åˆé€‰æ‹©ï¼Œç‰¹æ€§ `[ListPickerEditor]`ï¼‰
+  - Cascaderï¼ˆä¸‰çº§çº§è”ï¼Œç‰¹æ€§ `[CascaderEditor]` + `ITreeNode` æ•°æ®ï¼‰
+- çº¯ MVVMï¼šä½¿ç”¨ CommunityToolkit.Mvvm ç”Ÿæˆå‘½ä»¤ä¸å±æ€§
 
-## ½ØÍ¼
+## æˆªå›¾
 
-![](./ZGrid/Assets/2025-09-03_142307_650.png)
+![](./ZGrid.Demo/Assets/2025-09-03_142307_650.png)
 
-## ¿ìËÙ¿ªÊ¼
-### Ç°ÖÃÌõ¼ş
-- .NET SDK 9.0+
-
-### ¹¹½¨ÓëÔËĞĞ
-- »¹Ô­ÒÀÀµ£º`dotnet restore`
-- ¹¹½¨£º`dotnet build`
-- ÔËĞĞ£º`dotnet run --project ZGrid/ZGrid.csproj`
-
-## ÏîÄ¿½á¹¹
-- ZGrid/
-  - Controls/
-    - PropertyGrid.axaml, PropertyGrid.axaml.cs ¡ª¡ª ¿É¸´ÓÃµÄÊôĞÔÃæ°å¿Ø¼ş
-  - Models/
-    - MySettings.cs ¡ª¡ª Ê¾ÀıÊı¾İÄ£ĞÍ£¨´ø×¢½â£©
-    - PropertyGridModels.cs ¡ª¡ª ¿Ø¼şËùĞèÄ£ĞÍ¡¢×ª»»Æ÷¡¢±à¼­Æ÷ÀàĞÍµÈ
-  - Views/
-    - MainWindow.axaml ¡ª¡ª ³ĞÔØ PropertyGrid µÄ´°¿Ú
-  - ViewModels/
-    - MainWindowViewModel.cs ¡ª¡ª Ìá¹© SelectedObject Êı¾İÔ´
-
-## PropertyGrid ¿Ø¼şËµÃ÷
-PropertyGrid ÒÔÁ½ÁĞ²¼¾ÖÏÔÊ¾ÊôĞÔ£º×ó²àÎªÃû³Æ£¨DisplayName£©£¬ÓÒ²àÎª±à¼­Æ÷£»°´ Category ½øĞĞ·Ö×é¡£
-
-### ¹Ø¼üÊôĞÔ£¨¶ÔÍâ API£©
-- SelectedObject (object?)£ºÒªÕ¹Ê¾ºÍ±à¼­µÄ¶ÔÏó
-- SelectedEntry (PropertyEntry?)£ºµ±Ç°Ñ¡ÖĞµÄÊôĞÔÌõÄ¿£¨Ö§³Ö°ó¶¨£©
-
-### Êı¾İÄ£ĞÍ
-- PropertyEntry£º°ü×° PropertyDescriptor£¬±©Â¶ DisplayName¡¢Description¡¢Category¡¢EditorKind£¬ÒÔ¼°±à¼­Öµ£¨StringValue¡¢BoolValue¡¢EnumValue£©
-- CategoryGroup£ºName¡¢Items¡¢IsExpanded
-- ×ª»»Æ÷£ºEditorKindEqualsConverter¡¢NotConverter¡¢BoolToGlyphConverter
-
-### Ö§³ÖµÄ±à¼­Æ÷£¨µ±Ç°£©
-- Text£ºTextBox °ó¶¨ StringValue
-- Bool£ºCheckBox °ó¶¨ BoolValue
-- Enum£ºComboBox °ó¶¨ EnumValues/EnumValue
-
-ËµÃ÷£ºÎª±£³ÖÊ¾Àı¼ò½à£¬ÈÕÆÚ¡¢¶àÑ¡µÈ±à¼­Æ÷ÒÑÒÆ³ı¡£
-
-### Ê¹ÓÃÊ¾Àı
-XAML£¨·ÅÈëÄãµÄÊÓÍ¼ÖĞ£©£º
+## å¿«é€Ÿä¸Šæ‰‹
+1) å¼•ç”¨ç»„ä»¶åº“é¡¹ç›® ZGridï¼ˆæˆ–å°†å…¶åŠ å…¥ä½ çš„è§£å†³æ–¹æ¡ˆå¹¶æ·»åŠ é¡¹ç›®å¼•ç”¨ï¼‰ã€‚
+2) åœ¨è§†å›¾ä¸­å¼•å…¥å‘½åç©ºé—´å¹¶æ”¾ç½®æ§ä»¶ï¼š
 ```xml
-<controls:PropertyGrid SelectedObject="{Binding SelectedObject}" />
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:z="clr-namespace:Z;assembly=ZGrid">
+  <z:ZGrid SelectedObject="{Binding SelectedObject}" />
+</Window>
 ```
-
-ViewModel£¨Ìá¹©Ò»¸ö¶ÔÏóÊµÀı£©£º
+3) åœ¨ ViewModel ä¸­æä¾›ä¸€ä¸ªå¯¹è±¡å®ä¾‹ï¼š
 ```csharp
-public partial class MainWindowViewModel : ViewModelBase
+using CommunityToolkit.Mvvm.ComponentModel;
+
+public partial class MainWindowViewModel : ObservableObject
 {
     [ObservableProperty]
     private object? selectedObject = new MySettings();
 }
 ```
-
-Ä£ĞÍ£¨Ìí¼Ó×¢½â£©£º
+4) åœ¨æ¨¡å‹ä¸Šé€šè¿‡ç‰¹æ€§æè¿°å…ƒæ•°æ®ä¸å¯é€‰ç¼–è¾‘å™¨ï¼š
 ```csharp
+using System.ComponentModel;
+using Z;
+
 public class MySettings
 {
     [Category("General"), DisplayName("User Name"), Description("Shown across the app.")]
-    public string? UserName { get; set; } = Environment.UserName;
+    public string? UserName { get; set; }
 
-    [Category("General"), DisplayName("Enable Feature"), Description("Toggle a flag.")]
-    public bool EnableFeature { get; set; } = true;
+    [Category("General")]
+    public bool EnableFeature { get; set; }
 
-    [Category("Advanced"), DisplayName("Log Level"), Description("Select log level.")]
-    public LogLevel LogLevel { get; set; } = LogLevel.Info;
+    [Category("Advanced")]
+    public LogLevel LogLevel { get; set; }
+
+    // ListPicker ç¤ºä¾‹
+    [Browsable(false)]
+    public List<Person> PeopleSource { get; } = new();
+
+    [Category("Misc"), DisplayName("Owner"), ListPickerEditor(nameof(PeopleSource))]
+    public Person? Owner { get; set; }
+
+    // Cascader ç¤ºä¾‹
+    [Browsable(false)]
+    public List<CascaderNode> CascaderSource { get; } = new();
+
+    [Category("Misc"), DisplayName("Cascader Value"), CascaderEditor(nameof(CascaderSource))]
+    public string CascaderValue { get; set; } = string.Empty;
 }
 ```
 
-## Ö÷ÌâÓëÑùÊ½
-- ÕÛµş°´Å¥£ºÑùÊ½Àà `collapse-btn`
-- ĞĞµÄĞüÍ£/Ñ¡ÖĞ£ºÔÚ PropertyGrid.axaml µÄ ListBoxItem ÑùÊ½ÖĞ¶¨Òå
-- ¿É¸ù¾İĞèÒªÌæ»»ÑÕÉ«¡¢±ß¿ò¡¢Ä£°åÒÔ·ûºÏÄãµÄ²úÆ··ç¸ñ
+## æ„å»ºè¿è¡Œ
 
-## ¹æ»®£¨Roadmap£©
-- ¿ÉÑ¡±à¼­Æ÷£¨ÈÕÆÚ¡¢ÊıÖµ¡¢¶àÑ¡µÈ£©µÄ¿É²å°ÎÀ©Õ¹
-- Ğ£ÑéÓë´íÎóÕ¹Ê¾
-- ÊôĞÔËÑË÷/¹ıÂË
+```bash
+# è¿˜åŸ & æ„å»º
+dotnet restore
+dotnet build
 
-## ²ÎÓë¹±Ï×
-- Fork ²Ö¿â
-- »ùÓÚ¹¦ÄÜ½¨Á¢·ÖÖ§
-- ½¨ÒéÊ¹ÓÃÇåÎúµÄÌá½»ĞÅÏ¢
-- Ìá½» PR Ê±Çë¸½ÉÏ¸Ä¶¯ËµÃ÷£»Éæ¼° UI µÄ¸Ä¶¯Çë¸½ÉÏÇ°ºó½ØÍ¼
+# è¿è¡Œ Demo
+dotnet run --project ZGrid.Demo/ZGrid.Demo.csproj
+```
 
-½Ï´ó·¶Î§µÄ¸Ä¶¯£¬½¨ÒéÏÈÌá Issue ½øĞĞÌÖÂÛ¡£
 
-## Ğí¿ÉĞ­Òé
-±¾ÏîÄ¿Ê¹ÓÃ MIT Ğí¿ÉÖ¤·¢²¼¡£Äã¿ÉÒÔ×ÔÓÉµØÊ¹ÓÃ¡¢¸´ÖÆ¡¢ĞŞ¸Ä¡¢ºÏ²¢¡¢·¢²¼¡¢ÔÙĞí¿É¼°/»òÏúÊÛ±¾Èí¼şµÄ¸±±¾£¬µ«ĞèËæÈí¼şÒ»Í¬°üº¬°æÈ¨ºÍĞí¿ÉÉùÃ÷¡£ÏêÇé²Î¼û [LICENSE](LICENSE)¡£
+## è®¸å¯
+MITï¼Œè¯¦è§ LICENSEã€‚

@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using ZGrid.Models;
+using Z;
 
-namespace ZGrid.Models;
+namespace ZGrid.Demo.Models;
 
 public class MySettings
 {

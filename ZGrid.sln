@@ -1,15 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZGrid", "ZGrid\ZGrid.csproj", "{EF3F43A0-B962-47FA-AA1D-FFA1904BE3AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{9FA3D6BD-1EC1-3BA5-80CB-CE02773A58D5}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZGrid.Demo", "ZGrid.Demo\ZGrid.Demo.csproj", "{DAF4355E-FA0E-6B87-69C4-9A9080D48895}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +24,10 @@ Global
 		{EF3F43A0-B962-47FA-AA1D-FFA1904BE3AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF3F43A0-B962-47FA-AA1D-FFA1904BE3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF3F43A0-B962-47FA-AA1D-FFA1904BE3AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAF4355E-FA0E-6B87-69C4-9A9080D48895}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF4355E-FA0E-6B87-69C4-9A9080D48895}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF4355E-FA0E-6B87-69C4-9A9080D48895}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF4355E-FA0E-6B87-69C4-9A9080D48895}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
