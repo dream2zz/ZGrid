@@ -7,6 +7,7 @@ namespace ZGrid.Models;
 
 public class MySettings
 {
+    // General (7)
     [Category("General"), DisplayName("User Name"), Description("The display name of the current user used across the app, shown in headers, logs, and recent file metadata.")]
     public string? UserName { get; set; } = Environment.UserName;
 
@@ -28,10 +29,7 @@ public class MySettings
     [Category("General"), DisplayName("Auto Save Interval (min)"), Description("Interval in minutes for auto save.")]
     public int AutoSaveInterval { get; set; } = 10;
 
-    // A demo for inline 3-level cascader editor
-    [Category("Advanced"), DisplayName("Cascader Value"), Description("Select value with 3-level inline selector (pushes content below)."), CascaderEditor]
-    public string CascaderValue { get; set; } = string.Empty;
-
+    // Advanced (10)
     [Category("Advanced"), DisplayName("Retry Count"), Description("Number of retries for operation.")]
     public int RetryCount { get; set; } = 3;
 
@@ -60,6 +58,7 @@ public class MySettings
     [Category("Advanced"), DisplayName("Experimental Mode"), Description("Enable experimental features.")]
     public bool ExperimentalMode { get; set; } = false;
 
+    // Design (7)
     [Category("Design"), DisplayName("Accent Color"), Description("Primary accent color (hex). This is a deliberately long description to demonstrate wrapping and spacing of text in the panel; it is about one hundred characters long.")]
     public string AccentColor { get; set; } = "#0078d4";
 
@@ -81,6 +80,7 @@ public class MySettings
     [Category("Design"), DisplayName("High DPI Mode"), Description("Enable High-DPI rendering.")]
     public bool HighDpiMode { get; set; } = true;
 
+    // Misc (6)
     [Category("Misc"), DisplayName("Notes"), Description("Free form notes.")]
     public string? Notes { get; set; }
 
@@ -96,6 +96,27 @@ public class MySettings
     [Category("Misc"), DisplayName("Session Id"), Description("Current session id.")]
     public string SessionId { get; set; } = Guid.NewGuid().ToString("N");
 
+    // Cascader demo source using ITreeNode (leave empty when data comes from external)
+    [Browsable(false)]
+    public List<CascaderNode> CascaderSource { get; } = new();
+
+    // A demo for cascader editor with external source
+    [Category("Misc"), DisplayName("Cascader Value"), Description("Select value with 3-level ComboBox linked selector."), CascaderEditor(nameof(CascaderSource))]
+    public string CascaderValue { get; set; } = string.Empty;
+
+    // Demo list for ListPicker editor
+    [Browsable(false)]
+    public List<Person> PeopleSource { get; } = new()
+    {
+        new Person("Alice", 30),
+        new Person("Bob", 28),
+        new Person("Carol", 25)
+    };
+
+    [Category("Misc"), DisplayName("Owner"), Description("Pick a person from external list."), ListPickerEditor(nameof(PeopleSource))]
+    public Person? Owner { get; set; }
+
+    // Layout (7)
     [Category("Layout"), DisplayName("Window Width"), Description("Window width in pixels.")]
     public int WindowWidth { get; set; } = 1024;
 
@@ -117,6 +138,7 @@ public class MySettings
     [Category("Layout"), DisplayName("Density"), Description("UI density.")]
     public Density Density { get; set; } = Density.Comfortable;
 
+    // Window (6)
     [Category("Window"), DisplayName("Window State"), Description("Initial window state.")]
     public AppWindowState WindowState { get; set; } = AppWindowState.Normal;
 
@@ -135,6 +157,7 @@ public class MySettings
     [Category("Window"), DisplayName("Border Style"), Description("Window border style.")]
     public WindowBorderStyle BorderStyle { get; set; } = WindowBorderStyle.Resizable;
 
+    // Behavior (4)
     [Category("Behavior"), DisplayName("Confirm On Exit"), Description("Ask for confirmation when exiting.")]
     public bool ConfirmOnExit { get; set; } = true;
 
@@ -147,6 +170,7 @@ public class MySettings
     [Category("Behavior"), DisplayName("Auto Reload Files"), Description("Auto reload files when changed.")]
     public bool AutoReloadFiles { get; set; } = false;
 
+    // Text (3)
     [Category("Text"), DisplayName("Title"), Description("Application title.")]
     public string Title { get; set; } = "ZGrid";
 
@@ -155,6 +179,11 @@ public class MySettings
 
     [Category("Text"), DisplayName("Watermark"), Description("Watermark text.")]
     public string Watermark { get; set; } = string.Empty;
+}
+
+public record Person(string Name, int Age)
+{
+    public override string ToString() => $"{Name} ({Age})";
 }
 
 public enum LogLevel

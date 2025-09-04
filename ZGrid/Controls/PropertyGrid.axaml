@@ -48,14 +48,13 @@
                                MinHeight="28"
                                Text="{Binding StringValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                      <!-- Cascader header (TextBox with overlaid button •••) -->
+                      <!-- Cascader header back to TextBox + ••• button -->
                       <Grid IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Cascader}"
                             VerticalAlignment="Center">
-                        <TextBox x:Name="CascaderInput"
-                                 IsReadOnly="True"
+                        <TextBox IsReadOnly="True"
                                  MinHeight="28"
                                  Watermark="请选择..."
-                                 Text="{Binding SelectedLevel3}" Margin="0"/>
+                                 Text="{Binding SelectedLevel3, Mode=OneWay}"/>
                         <Button Classes="square-btn"
                                 Command="{Binding ToggleCascaderCommand}"
                                 Content="•••"
@@ -64,6 +63,12 @@
                                 VerticalContentAlignment="Center"
                                 Margin="4,0,4,0"/>
                       </Grid>
+
+                      <!-- ListPicker header stays a simple ComboBox using ItemOptions -->
+                      <ComboBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=ListPicker}"
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{Binding ItemOptions}"
+                                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"/>
                     </Grid>
                   </DataTemplate>
                 </Setter.Value>
@@ -127,7 +132,7 @@
       <Setter Property="Background" Value="Transparent"/>
     </Style>
 
-    <!-- Flat (borderless) button for cascader toggle -->
+    <!-- Flat (borderless) button style reused elsewhere -->
     <Style Selector="Button.square-btn">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>

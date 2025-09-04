@@ -15,7 +15,8 @@ public enum EditorKind
     Text,
     Bool,
     Enum,
-    Cascader
+    Cascader,
+    ListPicker
 }
 
 public sealed class EditorKindEqualsConverter : IValueConverter
@@ -57,64 +58,48 @@ public sealed class BoolToGlyphConverter : IValueConverter
         => value is string s && s == "-";
 }
 
+// Tree node contract for cascader data
+public interface ITreeNode
+{
+    IEnumerable<ITreeNode> Children { get; }
+}
+
 // Attribute to mark a property to use the Cascader editor
+// Optional ItemsSourcePropertyName: name of a property on the owning object
+// that provides IEnumerable<ITreeNode> as the root nodes.
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class CascaderEditorAttribute : Attribute { }
+public sealed class CascaderEditorAttribute : Attribute
+{
+    public string? ItemsSourcePropertyName { get; }
+    public CascaderEditorAttribute() { }
+    public CascaderEditorAttribute(string itemsSourcePropertyName) => ItemsSourcePropertyName = itemsSourcePropertyName;
+}
+
+// Attribute to mark a property to use the generic List<T> picker editor.
+// ItemsSourcePropertyName should point to an IEnumerable (preferably IEnumerable<T>)
+// available on the same owning object.
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class ListPickerEditorAttribute : Attribute
+{
+    public string ItemsSourcePropertyName { get; }
+    public ListPickerEditorAttribute(string itemsSourcePropertyName)
+        => ItemsSourcePropertyName = itemsSourcePropertyName;
+}
 
 // Simple node model for 3-level cascader
-public sealed class CascaderNode
+public sealed class CascaderNode : ITreeNode
 {
     public string Name { get; }
-    public IList<CascaderNode> Children { get; }
+    public IList<CascaderNode> ChildrenList { get; }
     public CascaderNode(string name, IList<CascaderNode>? children = null)
     {
         Name = name;
-        Children = children ?? new List<CascaderNode>();
+        ChildrenList = children ?? new List<CascaderNode>();
     }
-}
 
-// Provide some sample data for the cascader editor
-public static class DefaultCascaderData
-{
-    public static readonly IList<CascaderNode> Data = new List<CascaderNode>
-    {
-        new CascaderNode("一级 A", new List<CascaderNode>
-        {
-            new CascaderNode("二级 A1", new List<CascaderNode>
-            {
-                new CascaderNode("三级 A1-1"),
-                new CascaderNode("三级 A1-2"),
-                new CascaderNode("三级 A1-3"),
-            }),
-            new CascaderNode("二级 A2", new List<CascaderNode>
-            {
-                new CascaderNode("三级 A2-1"),
-                new CascaderNode("三级 A2-2"),
-            })
-        }),
-        new CascaderNode("一级 B", new List<CascaderNode>
-        {
-            new CascaderNode("二级 B1", new List<CascaderNode>
-            {
-                new CascaderNode("三级 B1-1"),
-                new CascaderNode("三级 B1-2"),
-            }),
-            new CascaderNode("二级 B2", new List<CascaderNode>
-            {
-                new CascaderNode("三级 B2-1"),
-            })
-        }),
-        new CascaderNode("一级 C", new List<CascaderNode>
-        {
-            new CascaderNode("二级 C1", new List<CascaderNode>
-            {
-                new CascaderNode("三级 C1-1"),
-                new CascaderNode("三级 C1-2"),
-                new CascaderNode("三级 C1-3"),
-                new CascaderNode("三级 C1-4"),
-            })
-        })
-    };
+    IEnumerable<ITreeNode> ITreeNode.Children => ChildrenList;
+
+    public override string ToString() => Name;
 }
 
 // Simple command helper
@@ -190,19 +175,19 @@ public sealed class PropertyEntry : INotifyPropertyChanged
     }
     private bool _isCascaderOpen;
 
-    public ObservableCollection<string> Level1Options { get; } = new();
-    public ObservableCollection<string> Level2Options { get; } = new();
-    public ObservableCollection<string> Level3Options { get; } = new();
+    public ObservableCollection<ITreeNode> Level1Options { get; } = new();
+    public ObservableCollection<ITreeNode> Level2Options { get; } = new();
+    public ObservableCollection<ITreeNode> Level3Options { get; } = new();
 
-    private IList<CascaderNode> _cascaderSource = new List<CascaderNode>();
+    private IList<ITreeNode> _cascaderSource = new List<ITreeNode>();
 
-    private string? _selectedLevel1;
-    public string? SelectedLevel1
+    private ITreeNode? _selectedLevel1;
+    public ITreeNode? SelectedLevel1
     {
         get => _selectedLevel1;
         set
         {
-            if (_selectedLevel1 != value)
+            if (!ReferenceEquals(_selectedLevel1, value))
             {
                 _selectedLevel1 = value;
                 OnPropertyChanged(nameof(SelectedLevel1));
@@ -211,13 +196,13 @@ public sealed class PropertyEntry : INotifyPropertyChanged
         }
     }
 
-    private string? _selectedLevel2;
-    public string? SelectedLevel2
+    private ITreeNode? _selectedLevel2;
+    public ITreeNode? SelectedLevel2
     {
         get => _selectedLevel2;
         set
         {
-            if (_selectedLevel2 != value)
+            if (!ReferenceEquals(_selectedLevel2, value))
             {
                 _selectedLevel2 = value;
                 OnPropertyChanged(nameof(SelectedLevel2));
@@ -226,22 +211,20 @@ public sealed class PropertyEntry : INotifyPropertyChanged
         }
     }
 
-    private string? _selectedLevel3;
-    public string? SelectedLevel3
+    private ITreeNode? _selectedLevel3;
+    public ITreeNode? SelectedLevel3
     {
         get => _selectedLevel3;
         set
         {
-            if (_selectedLevel3 != value)
+            if (!ReferenceEquals(_selectedLevel3, value))
             {
                 _selectedLevel3 = value;
                 OnPropertyChanged(nameof(SelectedLevel3));
                 // Commit value when all three are selected
-                if (!string.IsNullOrWhiteSpace(SelectedLevel1) &&
-                    !string.IsNullOrWhiteSpace(SelectedLevel2) &&
-                    !string.IsNullOrWhiteSpace(SelectedLevel3))
+                if (SelectedLevel1 is not null && SelectedLevel2 is not null && SelectedLevel3 is not null)
                 {
-                    Value = string.Join('/', SelectedLevel1, SelectedLevel2, SelectedLevel3);
+                    Value = string.Join('/', SelectedLevel1.ToString(), SelectedLevel2.ToString(), SelectedLevel3.ToString());
                     // collapse after selection
                     IsCascaderOpen = false;
                 }
@@ -250,6 +233,54 @@ public sealed class PropertyEntry : INotifyPropertyChanged
     }
 
     public ICommand ToggleCascaderCommand { get; }
+
+    // Generic List<T> picker state
+    public ObservableCollection<object> ItemOptions { get; } = new();
+
+    private object? _selectedItem;
+    public object? SelectedItem
+    {
+        get => _selectedItem;
+        set
+        {
+            if (!ReferenceEquals(_selectedItem, value))
+            {
+                _selectedItem = value;
+                OnPropertyChanged(nameof(SelectedItem));
+                OnPropertyChanged(nameof(SelectedItemDisplay));
+                if (value is not null)
+                {
+                    var targetType = _descriptor.PropertyType;
+                    object? toSet = value;
+                    if (!targetType.IsAssignableFrom(value.GetType()))
+                    {
+                        // fall back to string conversion
+                        var s = value.ToString();
+                        if (targetType == typeof(string))
+                            toSet = s;
+                        else
+                        {
+                            try
+                            {
+                                toSet = TypeDescriptor.GetConverter(targetType).ConvertFromString(null, CultureInfo.CurrentCulture, s);
+                            }
+                            catch
+                            {
+                                toSet = null;
+                            }
+                        }
+                    }
+                    Value = toSet;
+                }
+                else
+                {
+                    Value = null;
+                }
+            }
+        }
+    }
+
+    public string? SelectedItemDisplay => SelectedItem?.ToString();
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -268,18 +299,57 @@ public sealed class PropertyEntry : INotifyPropertyChanged
             EditorKind = EditorKind.Enum;
             EnumValues = Enum.GetValues(type);
         }
-        else if (type == typeof(string) && descriptor.Attributes.OfType<CascaderEditorAttribute>().Any())
+        else if (type == typeof(string) && descriptor.Attributes.OfType<CascaderEditorAttribute>().FirstOrDefault() is { } cascaderAttr)
         {
             EditorKind = EditorKind.Cascader;
-            _cascaderSource = DefaultCascaderData.Data;
+            // Resolve tree source if provided
+            if (!string.IsNullOrWhiteSpace(cascaderAttr.ItemsSourcePropertyName))
+            {
+                var prop = _instance.GetType().GetProperty(cascaderAttr.ItemsSourcePropertyName!);
+                if (prop?.GetValue(_instance) is IEnumerable enumerable)
+                {
+                    var list = new List<ITreeNode>();
+                    foreach (var item in enumerable)
+                    {
+                        if (item is ITreeNode tn) list.Add(tn);
+                    }
+                    _cascaderSource = list;
+                }
+            }
+            // If no external source is provided, keep empty; UI will show no options by design
             LoadLevel1();
-            // Try to preselect from current value
+            // Try to preselect from current value using displayed text
             if (_descriptor.GetValue(_instance) is string s && !string.IsNullOrWhiteSpace(s))
             {
                 var parts = s.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                if (parts.Length > 0) SelectedLevel1 = parts[0];
-                if (parts.Length > 1) SelectedLevel2 = parts[1];
-                if (parts.Length > 2) SelectedLevel3 = parts[2];
+                if (parts.Length > 0) SelectedLevel1 = FindByToString(_cascaderSource, parts[0]);
+                if (parts.Length > 1 && SelectedLevel1 is not null)
+                    SelectedLevel2 = FindByToString(SelectedLevel1.Children, parts[1]);
+                if (parts.Length > 2 && SelectedLevel2 is not null)
+                    SelectedLevel3 = FindByToString(SelectedLevel2.Children, parts[2]);
+            }
+        }
+        else if (descriptor.Attributes.OfType<ListPickerEditorAttribute>().FirstOrDefault() is { } pickerAttr)
+        {
+            EditorKind = EditorKind.ListPicker;
+            // Resolve items source from owning instance
+            var prop = _instance.GetType().GetProperty(pickerAttr.ItemsSourcePropertyName);
+            if (prop != null)
+            {
+                if (prop.GetValue(_instance) is IEnumerable enumerable)
+                {
+                    foreach (var item in enumerable)
+                        ItemOptions.Add(item);
+                }
+            }
+            // Preselect current value
+            var current = _descriptor.GetValue(_instance);
+            if (current != null)
+            {
+                var found = ItemOptions.FirstOrDefault(o => ReferenceEquals(o, current))
+                            ?? ItemOptions.FirstOrDefault(o => Equals(o, current))
+                            ?? ItemOptions.FirstOrDefault(o => string.Equals(o?.ToString(), current.ToString(), StringComparison.CurrentCulture));
+                if (found != null) _selectedItem = found;
             }
         }
         else
@@ -287,6 +357,9 @@ public sealed class PropertyEntry : INotifyPropertyChanged
 
         ToggleCascaderCommand = new SimpleCommand(() => IsCascaderOpen = !IsCascaderOpen);
     }
+
+    private static ITreeNode? FindByToString(IEnumerable<ITreeNode> nodes, string text)
+        => nodes.FirstOrDefault(n => string.Equals(n.ToString(), text, StringComparison.CurrentCulture));
 
     private static string GetFriendlyTypeName(Type t)
     {
@@ -318,6 +391,8 @@ public sealed class PropertyEntry : INotifyPropertyChanged
                 OnPropertyChanged(nameof(StringValue));
                 OnPropertyChanged(nameof(BoolValue));
                 OnPropertyChanged(nameof(EnumValue));
+                OnPropertyChanged(nameof(SelectedItem));
+                OnPropertyChanged(nameof(SelectedItemDisplay));
             }
         }
     }
@@ -370,7 +445,7 @@ public sealed class PropertyEntry : INotifyPropertyChanged
     {
         Level1Options.Clear();
         foreach (var n in _cascaderSource)
-            Level1Options.Add(n.Name);
+            Level1Options.Add(n);
         Level2Options.Clear();
         Level3Options.Clear();
     }
@@ -381,23 +456,18 @@ public sealed class PropertyEntry : INotifyPropertyChanged
         Level3Options.Clear();
         _selectedLevel2 = null; OnPropertyChanged(nameof(SelectedLevel2));
         _selectedLevel3 = null; OnPropertyChanged(nameof(SelectedLevel3));
-        if (string.IsNullOrWhiteSpace(SelectedLevel1)) return;
-        var n1 = _cascaderSource.FirstOrDefault(n => n.Name == SelectedLevel1);
-        if (n1 == null) return;
-        foreach (var n in n1.Children)
-            Level2Options.Add(n.Name);
+        if (SelectedLevel1 is null) return;
+        foreach (var n in SelectedLevel1.Children)
+            Level2Options.Add(n);
     }
 
     private void LoadLevel3()
     {
         Level3Options.Clear();
         _selectedLevel3 = null; OnPropertyChanged(nameof(SelectedLevel3));
-        if (string.IsNullOrWhiteSpace(SelectedLevel1) || string.IsNullOrWhiteSpace(SelectedLevel2)) return;
-        var n1 = _cascaderSource.FirstOrDefault(n => n.Name == SelectedLevel1);
-        var n2 = n1?.Children.FirstOrDefault(n => n.Name == SelectedLevel2);
-        if (n2 == null) return;
-        foreach (var n in n2.Children)
-            Level3Options.Add(n.Name);
+        if (SelectedLevel1 is null || SelectedLevel2 is null) return;
+        foreach (var n in SelectedLevel2.Children)
+            Level3Options.Add(n);
     }
 
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
