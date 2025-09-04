@@ -11,9 +11,13 @@
 
     <!-- Property row template -->
     <DataTemplate x:Key="PropertyEntryTemplate" x:DataType="models:PropertyEntry">
-      <Grid ColumnDefinitions="200,*" Margin="0,2">
-        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="8,0,0,0"/>
-        <ContentControl Grid.Column="1"
+      <!-- Two rows: row0 label+input, row1 (optional) full-width cascader panel -->
+      <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto" Margin="0,2">
+        <!-- label always aligned with the input on the same row -->
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+
+        <!-- input cell -->
+        <ContentControl Grid.Column="1" Grid.Row="0"
                         Content="{Binding}"
                         HorizontalContentAlignment="Stretch"
                         IsEnabled="{Binding IsReadOnly, Converter={StaticResource NotConverter}}">
@@ -22,17 +26,44 @@
               <Setter Property="ContentTemplate">
                 <Setter.Value>
                   <DataTemplate x:DataType="models:PropertyEntry">
+                    <!-- Input row switches per editor kind -->
                     <Grid>
+                      <!-- Bool editor -->
                       <CheckBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Bool}"
                                 HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
                                 IsChecked="{Binding BoolValue, Mode=TwoWay}"/>
+
+                      <!-- Enum editor -->
                       <ComboBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Enum}"
                                 HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
                                 ItemsSource="{Binding EnumValues}"
                                 SelectedItem="{Binding EnumValue, Mode=TwoWay}"/>
+
+                      <!-- Text editor -->
                       <TextBox IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Text}"
                                HorizontalAlignment="Stretch"
+                               VerticalAlignment="Center"
+                               MinHeight="28"
                                Text="{Binding StringValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                      <!-- Cascader header (TextBox with overlaid button •••) -->
+                      <Grid IsVisible="{Binding EditorKind, Converter={StaticResource EditorKindEquals}, ConverterParameter=Cascader}"
+                            VerticalAlignment="Center">
+                        <TextBox x:Name="CascaderInput"
+                                 IsReadOnly="True"
+                                 MinHeight="28"
+                                 Watermark="请选择..."
+                                 Text="{Binding SelectedLevel3}" Margin="0"/>
+                        <Button Classes="square-btn"
+                                Command="{Binding ToggleCascaderCommand}"
+                                Content="•••"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Stretch"
+                                VerticalContentAlignment="Center"
+                                Margin="4,0,4,0"/>
+                      </Grid>
                     </Grid>
                   </DataTemplate>
                 </Setter.Value>
@@ -40,6 +71,31 @@
             </Style>
           </ContentControl.Styles>
         </ContentControl>
+
+        <!-- Full width cascader expanding panel (occupies two columns) -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                Margin="0,6,0,0" BorderThickness="1" BorderBrush="#DDD" CornerRadius="2"
+                Background="#FFF"
+                IsVisible="{Binding IsCascaderOpen}">
+          <Grid ColumnDefinitions="*,Auto,*,Auto,*" MinHeight="140">
+            <!-- Level 1 -->
+            <ListBox Grid.Column="0" ItemsSource="{Binding Level1Options}"
+                     SelectedItem="{Binding SelectedLevel1, Mode=TwoWay}"
+                     BorderThickness="0"/>
+            <Border Grid.Column="1" Width="1" Background="#DDD"/>
+
+            <!-- Level 2 -->
+            <ListBox Grid.Column="2" ItemsSource="{Binding Level2Options}"
+                     SelectedItem="{Binding SelectedLevel2, Mode=TwoWay}"
+                     BorderThickness="0"/>
+            <Border Grid.Column="3" Width="1" Background="#DDD"/>
+
+            <!-- Level 3 -->
+            <ListBox Grid.Column="4" ItemsSource="{Binding Level3Options}"
+                     SelectedItem="{Binding SelectedLevel3, Mode=TwoWay}"
+                     BorderThickness="0"/>
+          </Grid>
+        </Border>
       </Grid>
     </DataTemplate>
   </UserControl.Resources>
@@ -68,6 +124,24 @@
       <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.collapse-btn:focused">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <!-- Flat (borderless) button for cascader toggle -->
+    <Style Selector="Button.square-btn">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Focusable" Value="False"/>
+    </Style>
+    <Style Selector="Button.square-btn:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.square-btn:pressed">
       <Setter Property="Background" Value="Transparent"/>
     </Style>
   </UserControl.Styles>
