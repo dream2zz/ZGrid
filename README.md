@@ -86,3 +86,5 @@ dotnet run --project ZGrid.Demo/ZGrid.Demo.csproj
 
 ## 许可
 MIT，详见 LICENSE。
+
+> 内容由 AI 生成，请仔细甄别。
